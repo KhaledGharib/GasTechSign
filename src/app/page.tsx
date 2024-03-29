@@ -12,12 +12,12 @@ export default function Home() {
     redirect("/dashboard");
   }
   return (
-    <main className="flex flex-col h-screen">
-      <Nav />
+    <div className="flex justify-center  min-h-screen">
+      <main className="mr-[160px] ml-[160px] w-full ">
+        <Nav />
 
-      <Content />
-
-      {/* <ModeToggle /> */}
-    </main>
+        <Content />
+      </main>
+    </div>
   );
 }

@@ -8,6 +8,7 @@ import {
 } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import React, { useState } from "react";
+import { ModeToggle } from "./ModeToggle";
 
 type MenuItem = "dashboard" | "displays";
 
@@ -58,15 +59,18 @@ export default function Side() {
               </li>
             </Link>
           </ul>
-          <Link
-            href={"/api/auth/logout"}
-            className="flex justify-center items-center  mb-28  mt-auto bg-slate-600 hover:bg-slate-800 w-24 transition-all rounded-md p-2"
-          >
-            <span className="flex justify-center items-center text-[#BEBEBE]">
-              <ArrowLeftStartOnRectangleIcon className="text-[#BEBEBE] w-5 h-5" />
-              Logout
-            </span>
-          </Link>
+          <div className="flex justify-center items-center mt-auto mb-28 gap-6">
+            <Link
+              href={"/api/auth/logout"}
+              className="flex justify-center items-center  bg-slate-600 hover:bg-slate-800 w-24 transition-all rounded-md p-2"
+            >
+              <span className="flex justify-center items-center text-[#BEBEBE]">
+                <ArrowLeftStartOnRectangleIcon className="text-[#BEBEBE] w-5 h-5" />
+                Logout
+              </span>
+            </Link>
+            <ModeToggle />
+          </div>
         </div>
       </div>
     </>

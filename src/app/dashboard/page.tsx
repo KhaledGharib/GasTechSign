@@ -5,6 +5,7 @@ import AddDisplay from "@/components/AddDisplay";
 import AramcoPrice from "@/components/AramcoPrice";
 import MapComponent from "@/components/Map";
 import Recent from "@/components/Recent";
+import { Button } from "@/components/ui/button";
 import { useStateContext } from "@/context/useContext";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/solid";
 
@@ -13,7 +14,7 @@ export default function Dashboard() {
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-7 pb-10">
-        <div className="bg-[#101323] rounded-2xl p-3">
+        <div className="bg-[#101323] text-white rounded-2xl p-3">
           <div className="flex justify-between items-center">
             <p className="font-medium">Aramco Price</p>
             <EllipsisVerticalIcon className="w-9 h-9 border-2 rounded-md hover:cursor-pointer hover:bg-slate-600" />
