@@ -4,8 +4,9 @@ GasTechSign is an innovative system designed to revolutionize the way gas statio
 
 ## Key Features
 
-**Remote Access:** GasTechSign can be accessed remotely, allowing operators to manage signage operations from anywhere, at any time, using mobile devices or computers.
-**Real-time Updates:** With GasTechSign, changes to pricing or promotional content are reflected instantly on the price signs, ensuring accurate and up-to-date information for customers.
+- **Remote Access:** GasTechSign can be accessed remotely, allowing operators to manage signage operations from anywhere, at any time, using mobile devices or computers.
+
+- **Real-time Updates:** With GasTechSign, changes to pricing or promotional content are reflected instantly on the price signs, ensuring accurate and up-to-date information for customers.
 
 GasTechSign is the ultimate solution for gas station owners looking to full remote gas price sign.
 
@@ -50,8 +51,12 @@ To install GasTechSign and set up the database using Prisma, follow these steps:
    npx prisma migrate dev
    ```
 
-6. Run the Application:
+6. Build & Run the Application:
 
    ```bash
-   npx start
+   # Build
+   npm run build
+
+   # Run
+   npm run start
    ```
