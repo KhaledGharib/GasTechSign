@@ -57,8 +57,6 @@ const PlacesAutocomplete = ({
     }
   };
 
-  // console.log(setValue);
-
   return isLoaded ? (
     <Command>
       <CommandInput

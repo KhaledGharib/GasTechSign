@@ -10,9 +10,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DisplayProps, useStateContext } from "@/context/useContext";
-import { useUser } from "@auth0/nextjs-auth0/client";
 import { useState } from "react";
 import PlacesAutocomplete from "./Places";
+import { useUser } from "@clerk/nextjs";
 
 export default function AddDisplay() {
   const [open, setOpen] = useState(false);
@@ -95,8 +95,8 @@ export default function AddDisplay() {
   };
 
   const handelSubmit = async () => {
-    if (user && user.sub && displays && validateForm()) {
-      const ownerId = user.sub.replace("auth0|", "");
+    if (user && user.id && displays && validateForm()) {
+      const ownerId = user.id.replace("auth0|", "");
       const response = await fetch("/api/create", {
         method: "POST",
         headers: {
@@ -118,7 +118,6 @@ export default function AddDisplay() {
 
       const newDisplay = await response.json();
       if (response.ok && newDisplay.message === "Created") {
-        console.log(newDisplay.message);
         setDisplays([...displays, newDisplay.data]);
         setOpen(false);
         setSelectedDisplay(null);

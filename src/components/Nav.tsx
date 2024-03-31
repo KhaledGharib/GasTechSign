@@ -13,7 +13,14 @@ import {
 } from "@/components/ui/navigation-menu";
 
 import { cn } from "@/lib/utils";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import {
+  SignIn,
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -111,9 +118,20 @@ export default function Nav() {
         <div className="flex justify-center items-center gap-5">
           <ModeToggle />
 
-          <Link href="/api/auth/login">
+          {/* <Link href="/sign-in">
             <Button className="dark:bg-slate-800 dark:text-white">Login</Button>
-          </Link>
+          </Link> */}
+          <SignedIn>
+            <Link href="/dashboard">
+              <Button>Dashboard</Button>
+            </Link>
+            <UserButton />
+          </SignedIn>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <Button>Sign in</Button>
+            </SignInButton>
+          </SignedOut>
         </div>
       </div>
     </>

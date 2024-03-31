@@ -1,5 +1,6 @@
 "use client";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useUser } from "@clerk/nextjs";
+// import { useUser } from "@auth0/nextjs-auth0/client";
 import {
   ReactNode,
   createContext,
@@ -50,8 +51,8 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      if (user && user.sub) {
-        const ownerId = user.sub.replace("auth0|", "");
+      if (user && user.id) {
+        const ownerId = user.id;
         try {
           const res = await fetch("/api/count", {
             method: "POST",

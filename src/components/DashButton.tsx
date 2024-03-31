@@ -17,12 +17,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { UserData } from "@/components/UserData";
-
-import { useUser } from "@auth0/nextjs-auth0/client";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { useUser } from "@clerk/nextjs";
 
 interface Display {
   ownerId: string;
@@ -41,9 +40,9 @@ export default function DashButton() {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (user && user.sub) {
+    if (user && user.id) {
       const { name, value } = e.target;
-      const ownerId = user.sub.replace("auth0|", "");
+      const ownerId = user.id;
       setDisplay((prevDisplay) => ({ ...prevDisplay, ownerId, [name]: value }));
     }
   };
@@ -66,7 +65,6 @@ export default function DashButton() {
           location: "",
           price: "",
         });
-        console.log(data);
       } else {
         throw new Error("Failed to submit data");
       }
@@ -92,7 +90,7 @@ export default function DashButton() {
                   name="name"
                   placeholder="Enter Display Name"
                   value={display.name}
-                  onChange={handleChange}
+                  // onChange={handleChange}
                 />
                 <Label htmlFor="location">Location:</Label>
                 <Input
@@ -100,7 +98,7 @@ export default function DashButton() {
                   name="location"
                   placeholder="Enter Location"
                   value={display.location}
-                  onChange={handleChange}
+                  // onChange={handleChange}
                 />
                 <Label htmlFor="price">Price:</Label>
                 <Input

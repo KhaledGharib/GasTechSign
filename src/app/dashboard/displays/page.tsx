@@ -1,6 +1,5 @@
 "use client";
 import AddDisplay from "@/components/AddDisplay";
-// import AddDisplay from "@/components/AddDisplay";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DisplayProps, useStateContext } from "@/context/useContext";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useUser } from "@clerk/nextjs";
 
 import { useState } from "react";
 
@@ -34,8 +33,8 @@ export default function Displays() {
 
   const { user } = useUser();
   const handelDelete = async (displayID: string) => {
-    if (user && user.sub && displays) {
-      const ownerId = user.sub.replace("auth0|", "");
+    if (user && user.id && displays) {
+      const ownerId = user.id;
       const response = await fetch("/api/delete", {
         method: "DELETE",
         headers: {
@@ -57,9 +56,9 @@ export default function Displays() {
   };
 
   const handleUpdate = async () => {
-    if (user && user.sub && selectedDisplay) {
+    if (user && user.id && selectedDisplay) {
       try {
-        const ownerId = user.sub.replace("auth0|", "");
+        const ownerId = user.id;
         const response = await fetch("/api/update", {
           method: "PUT",
           headers: {
@@ -93,7 +92,7 @@ export default function Displays() {
     }
   };
   const handelSend = async (displayID: string) => {
-    const ownerId = user?.sub?.replace("auth0|", "");
+    const ownerId = user?.id;
     try {
       const response = await fetch("/api/send", {
         method: "POST",
