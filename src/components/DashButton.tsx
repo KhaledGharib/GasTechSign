@@ -90,7 +90,7 @@ export default function DashButton() {
                   name="name"
                   placeholder="Enter Display Name"
                   value={display.name}
-                  // onChange={handleChange}
+                  onChange={handleChange}
                 />
                 <Label htmlFor="location">Location:</Label>
                 <Input
@@ -98,7 +98,7 @@ export default function DashButton() {
                   name="location"
                   placeholder="Enter Location"
                   value={display.location}
-                  // onChange={handleChange}
+                  onChange={handleChange}
                 />
                 <Label htmlFor="price">Price:</Label>
                 <Input
