@@ -1,19 +1,24 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { SignOutButton, useClerk, useUser } from "@clerk/nextjs";
 import {
   AdjustmentsHorizontalIcon,
   ArrowLeftStartOnRectangleIcon,
   HomeIcon,
 } from "@heroicons/react/24/solid";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { ModeToggle } from "./ModeToggle";
+import { Button } from "./ui/button";
 
 type MenuItem = "dashboard" | "displays";
 
 export default function Side() {
   const { user } = useUser();
+  const { signOut } = useClerk();
+  const router = useRouter();
+
   const [activeItem, setActiveItem] = useState<MenuItem | null>(null);
 
   const handleItemClick = (item: MenuItem) => {
@@ -29,11 +34,13 @@ export default function Side() {
           </div>
           <div className="flex flex-col items-center gap-3">
             <Avatar className="w-28 h-28">
-              <AvatarImage src={user?.picture!} />
+              <AvatarImage src={user?.imageUrl} />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
 
-            <p className="text-[#141a3a] font-semibold">{user?.nickname}</p>
+            {/* <UserButton /> */}
+
+            <p className="text-[#141a3a] font-semibold">{user?.username}</p>
           </div>
         </div>
         <div className="h-full flex flex-col justify-center items-center">
@@ -60,15 +67,9 @@ export default function Side() {
             </Link>
           </ul>
           <div className="flex justify-center items-center mt-auto mb-28 gap-6">
-            <Link
-              href={"/api/auth/logout"}
-              className="flex justify-center items-center  bg-slate-600 hover:bg-slate-800 w-24 transition-all rounded-md p-2"
-            >
-              <span className="flex justify-center items-center text-[#BEBEBE]">
-                <ArrowLeftStartOnRectangleIcon className="text-[#BEBEBE] w-5 h-5" />
-                Logout
-              </span>
-            </Link>
+            <Button onClick={() => signOut(() => router.push("/"))}>
+              Sign out
+            </Button>
             <ModeToggle />
           </div>
         </div>

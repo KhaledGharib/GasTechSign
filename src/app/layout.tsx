@@ -1,11 +1,12 @@
 import { ThemeProvider } from "@/components/theme-provider";
 import { ContextProvider } from "@/context/useContext";
-import { UserProvider } from "@auth0/nextjs-auth0/client";
+import { ClerkProvider } from "@clerk/nextjs";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+
 config.autoAddCss = false;
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <UserProvider>
+        <ClerkProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
@@ -31,7 +32,7 @@ export default function RootLayout({
           >
             <ContextProvider>{children}</ContextProvider>
           </ThemeProvider>
-        </UserProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
