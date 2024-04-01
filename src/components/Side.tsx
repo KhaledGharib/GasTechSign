@@ -1,14 +1,14 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// import { useUser } from "@auth0/nextjs-auth0/client";
-import { SignOutButton, useUser } from "@clerk/nextjs";
+import { SignOutButton, useClerk, useUser } from "@clerk/nextjs";
 import {
   AdjustmentsHorizontalIcon,
   ArrowLeftStartOnRectangleIcon,
   HomeIcon,
 } from "@heroicons/react/24/solid";
 import Link from "next/link";
-import React, { use, useState } from "react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import { ModeToggle } from "./ModeToggle";
 import { Button } from "./ui/button";
 
@@ -16,6 +16,9 @@ type MenuItem = "dashboard" | "displays";
 
 export default function Side() {
   const { user } = useUser();
+  const { signOut } = useClerk();
+  const router = useRouter();
+
   const [activeItem, setActiveItem] = useState<MenuItem | null>(null);
 
   const handleItemClick = (item: MenuItem) => {
@@ -64,10 +67,9 @@ export default function Side() {
             </Link>
           </ul>
           <div className="flex justify-center items-center mt-auto mb-28 gap-6">
-            <SignOutButton>
-              <Button className="">Sign out</Button>
-            </SignOutButton>
-
+            <Button onClick={() => signOut(() => router.push("/"))}>
+              Sign out
+            </Button>
             <ModeToggle />
           </div>
         </div>

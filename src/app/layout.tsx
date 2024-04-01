@@ -1,6 +1,5 @@
 import { ThemeProvider } from "@/components/theme-provider";
 import { ContextProvider } from "@/context/useContext";
-import { UserProvider } from "@auth0/nextjs-auth0/client";
 import { ClerkProvider } from "@clerk/nextjs";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
