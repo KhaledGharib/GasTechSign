@@ -121,7 +121,6 @@ export default function Displays() {
           },
           body: JSON.stringify({
             topic: espData.displayId,
-
             fuel91: espData.fuel91,
             fuel95: espData.fuel95,
             fuelDI: espData.fuelDI,

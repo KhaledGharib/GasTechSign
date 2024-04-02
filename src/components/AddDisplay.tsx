@@ -113,11 +113,9 @@ export default function AddDisplay() {
           },
           body: JSON.stringify({
             topic: espData.displayId,
-            message: {
-              fuel91: espData.fuel91,
-              fuel95: espData.fuel95,
-              fuelDI: espData.fuelDI,
-            },
+            fuel91: espData.fuel91,
+            fuel95: espData.fuel95,
+            fuelDI: espData.fuelDI,
           }),
         });
         const res = await espResponse.json();
