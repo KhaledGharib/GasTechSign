@@ -4,20 +4,12 @@ import { NextRequest } from "next/server";
 const prisma = new PrismaClient();
 export async function PUT(req: NextRequest) {
   try {
-    const {
-      ownerId,
-      displayID,
-      fuel91,
-      fuel95,
-      fuelDI,
-      location,
-      displayName,
-      ipAddress,
-    } = await req.json();
+    const { userId, displayID, fuel91, fuel95, fuelDI, location, displayName } =
+      await req.json();
 
     const response = await prisma.display.update({
       where: {
-        ownerId,
+        userId,
         id: displayID,
       },
       data: {
@@ -26,7 +18,6 @@ export async function PUT(req: NextRequest) {
         fuelDI,
         location,
         displayName,
-        ipAddress,
       },
     });
 

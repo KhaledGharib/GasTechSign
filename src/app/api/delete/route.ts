@@ -4,11 +4,11 @@ import { NextRequest } from "next/server";
 const prisma = new PrismaClient();
 export async function DELETE(req: NextRequest) {
   try {
-    const { ownerId, displayID } = await req.json();
+    const { userId, displayID } = await req.json();
 
     const response = await prisma.display.delete({
       where: {
-        ownerId,
+        userId,
         id: displayID,
       },
     });
@@ -16,12 +16,7 @@ export async function DELETE(req: NextRequest) {
     // Serialize the response array to JSON
     const responseBody = JSON.stringify(response);
 
-    return new Response(responseBody, {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "http://localhost:8081",
-      },
-    });
+    return new Response(responseBody);
   } catch (error) {
     const errorResponse = { data: error };
     const errorBody = JSON.stringify(errorResponse);

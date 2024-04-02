@@ -4,11 +4,11 @@ import { NextRequest } from "next/server";
 const prisma = new PrismaClient();
 export async function POST(req: NextRequest) {
   try {
-    const { ownerId, displayID } = await req.json();
+    const { userId, displayID } = await req.json();
 
     const response = await prisma.display.findFirst({
       where: {
-        ownerId,
+        userId,
         id: displayID,
       },
     });

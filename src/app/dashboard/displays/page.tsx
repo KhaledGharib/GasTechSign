@@ -32,15 +32,17 @@ export default function Displays() {
   );
 
   const { user } = useUser();
+  const [open, setOpen] = useState(false);
+
   const handelDelete = async (displayID: string) => {
     if (user && user.id && displays) {
-      const ownerId = user.id;
+      const userId = user.id;
       const response = await fetch("/api/delete", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ownerId, displayID }),
+        body: JSON.stringify({ userId, displayID }),
       });
 
       if (response.ok) {
@@ -72,7 +74,7 @@ export default function Displays() {
             fuel91: selectedDisplay.fuel91,
             fuel95: selectedDisplay.fuel95,
             fuelDI: selectedDisplay.fuelDI,
-            ipAddress: selectedDisplay.ipAddress,
+            displays: selectedDisplay.displayId,
           }),
         });
 
@@ -82,6 +84,8 @@ export default function Displays() {
             display.id === updatedDisplay.id ? updatedDisplay : display
           );
           setDisplays(updatedDisplays ?? []);
+          handelSend(selectedDisplay.id);
+          setOpen(false);
         } else {
           const errorData = await response.json();
           console.error("Error updating display:", errorData.error);
@@ -92,7 +96,7 @@ export default function Displays() {
     }
   };
   const handelSend = async (displayID: string) => {
-    const ownerId = user?.id;
+    const userId = user?.id;
     try {
       const response = await fetch("/api/send", {
         method: "POST",
@@ -100,29 +104,32 @@ export default function Displays() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ownerId,
+          userId,
           displayID,
         }),
       });
       const data = await response.json();
-
+      console.log(data);
       if (response.ok) {
         const espData = data[0];
 
         // Modify this fetch request to send JSON data to your ESP
-        const espResponse = await fetch(
-          `http://${espData.ipAddress}/send-data`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(espData),
-          }
-        );
+        const espResponse = await fetch("/api/aws", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            topic: espData.displayId,
 
+            fuel91: espData.fuel91,
+            fuel95: espData.fuel95,
+            fuelDI: espData.fuelDI,
+          }),
+        });
+        const res = await espResponse.json();
         if (espResponse.ok) {
-          console.log("Data sent to ESP successfully");
+          console.log(res.message);
         } else {
           console.error("Failed to send data to ESP");
         }
@@ -147,7 +154,7 @@ export default function Displays() {
           <TableBody>
             {displays.map((data: DisplayProps) => (
               <TableRow key={data.id}>
-                <TableCell className="text-left">{data.location}</TableCell>
+                <TableCell className="text-left">{data.displayName}</TableCell>
                 <TableCell className="font-medium text-center  gap-2">
                   <div className="flex items-center justify-center gap-3">
                     <Button
@@ -164,7 +171,7 @@ export default function Displays() {
                     >
                       Send
                     </Button>
-                    <Dialog>
+                    <Dialog open={open} onOpenChange={setOpen}>
                       <DialogTrigger
                         asChild
                         onClick={() => {
@@ -203,16 +210,16 @@ export default function Displays() {
                                 }))
                               }
                             />
-                            <Label htmlFor="IP Address">IP Address</Label>
+                            <Label htmlFor="IP Address">StationID</Label>
                             <Input
                               id="IP Address"
                               name="IP Address"
                               placeholder="IP Address"
-                              value={selectedDisplay?.ipAddress}
+                              value={selectedDisplay?.displayId}
                               onChange={(e) =>
                                 setSelectedDisplay((prevDisplay: any) => ({
                                   ...prevDisplay,
-                                  ipAddress: e.target.value,
+                                  displayId: e.target.value,
                                 }))
                               }
                             />

@@ -4,11 +4,11 @@ import { NextRequest } from "next/server";
 const prisma = new PrismaClient();
 export async function POST(req: NextRequest) {
   try {
-    const { ownerId } = await req.json();
+    const { userId } = await req.json();
 
     const response = await prisma.display.findMany({
       where: {
-        ownerId,
+        userId,
       },
     });
 

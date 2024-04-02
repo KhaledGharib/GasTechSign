@@ -11,11 +11,11 @@ import {
 
 export interface DisplayProps {
   id: string;
-  ipAddress: string;
+  displayId: string;
   fuel91: number;
   fuel95: number;
   fuelDI: number;
-  ownerId: string;
+  userId: string;
   isActive: boolean;
   location: string;
   displayName: string;
@@ -52,14 +52,14 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
     const fetchData = async () => {
       if (user && user.id) {
-        const ownerId = user.id;
+        const userId = user.id;
         try {
           const res = await fetch("/api/count", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ ownerId }),
+            body: JSON.stringify({ userId }),
           });
 
           const data = await res.json();
