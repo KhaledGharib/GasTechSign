@@ -32,6 +32,7 @@ export default function Dashboard() {
           <p className="font-medium text-2xl">Recent Added</p>
           <AddDisplay />
         </div>
+
         <Recent />
       </div>
     </>

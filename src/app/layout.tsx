@@ -9,7 +9,6 @@ import "./globals.css";
 
 config.autoAddCss = false;
 const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
   title: "Gas Tech Sign",
   description: "Automate your gas stations price sign",

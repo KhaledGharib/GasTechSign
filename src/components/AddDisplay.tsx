@@ -7,12 +7,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DisplayProps, useStateContext } from "@/context/useContext";
+import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import PlacesAutocomplete from "./Places";
-import { useUser } from "@clerk/nextjs";
 
 export default function AddDisplay() {
   const [open, setOpen] = useState(false);
@@ -39,8 +40,7 @@ export default function AddDisplay() {
   // State variables and validation functions for form fields
   const [errors, setErrors] = useState({
     displayName: "",
-    location: "",
-    ipAddress: "",
+    StationID: "",
     fuel91: "",
     fuel95: "",
     fuelDI: "",
@@ -57,18 +57,11 @@ export default function AddDisplay() {
       newErrors.displayName = "";
     }
 
-    if (!coordinates.location) {
-      newErrors.location = "Location is required.";
+    if (!selectedDisplay?.displayId) {
+      newErrors.StationID = "StationID is required.";
       valid = false;
     } else {
-      newErrors.location = "";
-    }
-
-    if (!selectedDisplay?.ipAddress) {
-      newErrors.ipAddress = "IP Address is required.";
-      valid = false;
-    } else {
-      newErrors.ipAddress = "";
+      newErrors.StationID = "";
     }
 
     if (!selectedDisplay?.fuel91) {
@@ -94,22 +87,66 @@ export default function AddDisplay() {
     return valid;
   };
 
+  const handelSend = async (displayID: string) => {
+    const userId = user?.id;
+    try {
+      const response = await fetch("/api/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          displayID,
+        }),
+      });
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        const espData = data[0];
+
+        // Modify this fetch request to send JSON data to your ESP
+        const espResponse = await fetch("/api/aws", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            topic: espData.displayId,
+            message: {
+              fuel91: espData.fuel91,
+              fuel95: espData.fuel95,
+              fuelDI: espData.fuelDI,
+            },
+          }),
+        });
+        const res = await espResponse.json();
+        if (espResponse.ok) {
+          console.log(res.message);
+        } else {
+          console.error("Failed to send data to ESP");
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
   const handelSubmit = async () => {
     if (user && user.id && displays && validateForm()) {
-      const ownerId = user.id.replace("auth0|", "");
+      const userId = user.id;
       const response = await fetch("/api/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ownerId,
+          userId,
           displayName: selectedDisplay?.displayName,
           location: coordinates.location,
           fuel91: selectedDisplay?.fuel91,
           fuel95: selectedDisplay?.fuel95,
           fuelDI: selectedDisplay?.fuelDI,
-          ipAddress: selectedDisplay?.ipAddress,
+          displayId: selectedDisplay?.displayId,
           isActive: selectedDisplay?.isActive,
           lat: coordinates.lat,
           lng: coordinates.lng,
@@ -119,6 +156,7 @@ export default function AddDisplay() {
       const newDisplay = await response.json();
       if (response.ok && newDisplay.message === "Created") {
         setDisplays([...displays, newDisplay.data]);
+        handelSend(newDisplay.displayId);
         setOpen(false);
         setSelectedDisplay(null);
       } else {
@@ -167,24 +205,21 @@ export default function AddDisplay() {
                   onLatLngChange={handleLatLngChange}
                 />
               </div>
-              {errors.location && (
-                <p className="text-red-500">{errors.location}</p>
-              )}
-              <Label htmlFor="IP Address">IP Address</Label>
+              <Label htmlFor="displayId">displayId</Label>
               <Input
-                id="IP Address"
-                name="IP Address"
-                placeholder="IP Address"
-                value={selectedDisplay?.ipAddress}
+                id="displayId"
+                name="displayId"
+                placeholder="displayId"
+                value={selectedDisplay?.displayId}
                 onChange={(e) =>
                   setSelectedDisplay((prevDisplay: any) => ({
                     ...prevDisplay,
-                    ipAddress: e.target.value,
+                    displayId: e.target.value,
                   }))
                 }
               />
-              {errors.ipAddress && (
-                <p className="text-red-500">{errors.ipAddress}</p>
+              {errors.StationID && (
+                <p className="text-red-500">{errors.StationID}</p>
               )}
               <Label htmlFor="price">fuel91</Label>
               <Input

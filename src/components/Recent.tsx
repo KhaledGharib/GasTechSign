@@ -34,7 +34,7 @@ export default function Recent() {
                     <CardDescription>{item.location}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p>{item.ipAddress}</p>
+                    <p>{item.displayId}</p>
                   </CardContent>
                   <CardFooter className="flex justify-between">
                     <p>{item.isActive ? "🟢 Active" : "🔴 Inactive"}</p>

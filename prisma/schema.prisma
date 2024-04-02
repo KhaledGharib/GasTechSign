@@ -14,24 +14,25 @@ datasource db {
 }
 
 
-// model price {
-//   id          Int      @id @default(autoincrement())
-//   price       String
-//   created_at  DateTime @default(now())
-// }
+model User {
+  id         Int      @id @default(autoincrement())
+  externalId String   @unique
+  attributes Json?
+  displays   Display[]
+}
 
-model display {
-  id          String   @id @default(uuid())
-  ipAddress   String   @db.VarChar(45) 
-  fuel91      Decimal
-  fuel95      Decimal
-  fuelDI      Decimal   
-  displayName String   
-  ownerId     String   
-  isActive    Boolean  @default(false)
-  location    String   
-  lat         Float   
-  lng         Float
-  createdAt   DateTime @default(now())
-
+model Display {
+  id           Int   @id @default(autoincrement())
+  userId       String
+  user         User  @relation(fields: [userId], references: [externalId])
+  fuel91       Decimal
+  fuel95       Decimal
+  fuelDI       Decimal   
+  displayName  String   
+  displayId    String     @unique  
+  isActive     Boolean  @default(false)
+  location     String?   
+  lat          Float?   
+  lng          Float?
+  createdAt    DateTime @default(now())
 }
