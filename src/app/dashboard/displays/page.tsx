@@ -243,7 +243,6 @@ export default function Displays() {
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
-                          <DialogTitle>Add new Fuelight</DialogTitle>
                           <DialogDescription>
                             <Label htmlFor="name">Display Name:</Label>
                             <Input
@@ -258,26 +257,7 @@ export default function Displays() {
                                 {errors.displayName}
                               </p>
                             )}
-                            <Label htmlFor="location">Location:</Label>
-                            <div className="border rounded-md">
-                              <PlacesAutocomplete
-                                location={values?.location!}
-                                lat={values?.lat!}
-                                lng={values?.lng!}
-                                onLatLngChange={handleLatLngChange}
-                              />
-                            </div>
-                            <Label htmlFor="displayId">displayId</Label>
-                            <Input
-                              id="displayId"
-                              name="displayId"
-                              placeholder="displayId"
-                              value={values?.displayId}
-                              onChange={handelOnChange}
-                            />
-                            {errors.StationID && (
-                              <p className="text-red-500">{errors.StationID}</p>
-                            )}
+
                             <Label htmlFor="price">Gasoline 91:</Label>
                             <Input
                               disabled={checked}
