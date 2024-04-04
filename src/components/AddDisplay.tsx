@@ -7,6 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,71 +17,95 @@ import { useState } from "react";
 import PlacesAutocomplete from "./Places";
 
 export default function AddDisplay() {
-  const [open, setOpen] = useState(false);
-
-  const [selectedDisplay, setSelectedDisplay] = useState<DisplayProps | null>(
-    null
-  );
-  const { displays, setDisplays } = useStateContext();
-
   const { user } = useUser();
-  const [coordinates, setCoordinates] = useState<{
-    lat: number;
-    lng: number;
-    location: string;
-  }>({
-    lat: 0,
-    lng: 0,
-    location: "",
-  });
-  const handleLatLngChange = (lat: number, lng: number, location: string) => {
-    setCoordinates({ lat, lng, location });
-  };
+  const { displays, setDisplays, retailFuels } = useStateContext();
 
   // State variables and validation functions for form fields
   const [errors, setErrors] = useState({
     displayName: "",
     StationID: "",
-    fuel91: "",
-    fuel95: "",
-    fuelDI: "",
+    Gasoline91: "",
+    Gasoline95: "",
+    Diesel: "",
   });
+  const [open, setOpen] = useState(false);
+  const [checked, setChecked] = useState(true);
+  const [values, setValues] = useState<DisplayProps | null>(null);
+
+  const syncFunction = () => {
+    setChecked(true);
+    if (retailFuels) {
+      retailFuels.map((e) => {
+        setValues((prevFormData) => ({
+          ...prevFormData,
+          [e.fuelName.replace(" ", "")]: e.price,
+        }));
+      });
+    }
+  };
+
+  const handelOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (name === "Gasoline91" || name === "Gasoline95" || name === "Diesel") {
+      let price = value;
+      price = price.replace(/[^0-9.]/g, "");
+      if (/^\d{2}$/.test(price)) {
+        price = price + ".";
+      }
+      const hasMultipleDecimals = price.split(".").length > 2;
+      const isValidFormat = /^\d{0,2}(\.\d{0,2})?$/.test(price);
+      if (!hasMultipleDecimals && isValidFormat) {
+        setValues((prevFormData) => ({
+          ...prevFormData,
+          [name]: price,
+        }));
+      }
+    } else {
+      setValues((prevFormData) => ({
+        ...prevFormData,
+        [name]: value,
+      }));
+    }
+  };
+  const handleLatLngChange = (lat: number, lng: number, location: string) => {
+    setValues({ lat, lng, location });
+  };
 
   const validateForm = () => {
     let valid = true;
     const newErrors = { ...errors };
 
-    if (!selectedDisplay?.displayName) {
+    if (!values?.displayName) {
       newErrors.displayName = "Display Name is required.";
       valid = false;
     } else {
       newErrors.displayName = "";
     }
 
-    if (!selectedDisplay?.displayId) {
+    if (!values?.displayId) {
       newErrors.StationID = "StationID is required.";
       valid = false;
     } else {
       newErrors.StationID = "";
     }
 
-    if (!selectedDisplay?.fuel91) {
-      newErrors.fuel91 = "Price is required.";
+    if (!values?.Gasoline91) {
+      newErrors.Gasoline91 = "Price is required.";
       valid = false;
     } else {
-      newErrors.fuel91 = "";
+      newErrors.Gasoline91 = "";
     }
-    if (!selectedDisplay?.fuel95) {
-      newErrors.fuel95 = "Price is required.";
+    if (!values?.Gasoline95) {
+      newErrors.Gasoline95 = "Price is required.";
       valid = false;
     } else {
-      newErrors.fuel95 = "";
+      newErrors.Gasoline95 = "";
     }
-    if (!selectedDisplay?.fuelDI) {
-      newErrors.fuelDI = "Price is required.";
+    if (!values?.Diesel) {
+      newErrors.Diesel = "Price is required.";
       valid = false;
     } else {
-      newErrors.fuelDI = "";
+      newErrors.Diesel = "";
     }
 
     setErrors(newErrors);
@@ -113,9 +138,9 @@ export default function AddDisplay() {
           },
           body: JSON.stringify({
             topic: espData.displayId,
-            fuel91: espData.fuel91,
-            fuel95: espData.fuel95,
-            fuelDI: espData.fuelDI,
+            fuel91: espData.Gasoline91,
+            fuel95: espData.Gasoline95,
+            fuelDI: espData.Diesel,
           }),
         });
         const res = await espResponse.json();
@@ -139,15 +164,15 @@ export default function AddDisplay() {
         },
         body: JSON.stringify({
           userId,
-          displayName: selectedDisplay?.displayName,
-          location: coordinates.location,
-          fuel91: selectedDisplay?.fuel91,
-          fuel95: selectedDisplay?.fuel95,
-          fuelDI: selectedDisplay?.fuelDI,
-          displayId: selectedDisplay?.displayId,
-          isActive: selectedDisplay?.isActive,
-          lat: coordinates.lat,
-          lng: coordinates.lng,
+          displayName: values?.displayName,
+          location: values?.location,
+          Gasoline91: values?.Gasoline91,
+          Gasoline95: values?.Gasoline95,
+          Diesel: values?.Diesel,
+          displayId: values?.displayId,
+          isActive: values?.isActive,
+          lat: values?.lat,
+          lng: values?.lng,
         }),
       });
 
@@ -156,23 +181,31 @@ export default function AddDisplay() {
         setDisplays([...displays, newDisplay.data]);
         handelSend(newDisplay.displayId);
         setOpen(false);
-        setSelectedDisplay(null);
+        setValues(null);
       } else {
         console.error("Error deleting display:", newDisplay.message);
       }
+    }
+  };
+  const handelSwitch = () => {
+    if (checked) {
+      setChecked(false);
+      setValues((prevFormData) => ({
+        ...prevFormData,
+        Gasoline91: "",
+        Gasoline95: "",
+        Diesel: "",
+      }));
+    } else {
+      syncFunction();
     }
   };
 
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger
-          asChild
-          onClick={() => {
-            setSelectedDisplay(null);
-          }}
-        >
-          <Button>Add new Display</Button>
+        <DialogTrigger asChild>
+          <Button onClick={syncFunction}>Add new Display</Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
@@ -180,16 +213,11 @@ export default function AddDisplay() {
             <DialogDescription>
               <Label htmlFor="name">Display Name:</Label>
               <Input
-                id="name"
-                name="name"
+                id="displayName"
+                name="displayName"
                 placeholder="Enter Display Name"
-                value={selectedDisplay?.displayName}
-                onChange={(e) =>
-                  setSelectedDisplay((prevDisplay: any) => ({
-                    ...prevDisplay,
-                    displayName: e.target.value,
-                  }))
-                }
+                value={values?.displayName}
+                onChange={handelOnChange}
               />
               {errors.displayName && (
                 <p className="text-red-500">{errors.displayName}</p>
@@ -197,9 +225,9 @@ export default function AddDisplay() {
               <Label htmlFor="location">Location:</Label>
               <div className="border rounded-md">
                 <PlacesAutocomplete
-                  location={coordinates.location}
-                  lat={coordinates.lat}
-                  lng={coordinates.lng}
+                  location={values?.location!}
+                  lat={values?.lat!}
+                  lng={values?.lng!}
                   onLatLngChange={handleLatLngChange}
                 />
               </div>
@@ -208,94 +236,46 @@ export default function AddDisplay() {
                 id="displayId"
                 name="displayId"
                 placeholder="displayId"
-                value={selectedDisplay?.displayId}
-                onChange={(e) =>
-                  setSelectedDisplay((prevDisplay: any) => ({
-                    ...prevDisplay,
-                    displayId: e.target.value,
-                  }))
-                }
+                value={values?.displayId}
+                onChange={handelOnChange}
               />
               {errors.StationID && (
                 <p className="text-red-500">{errors.StationID}</p>
               )}
-              <Label htmlFor="price">fuel91</Label>
+              <Label htmlFor="price">Gasoline 91:</Label>
               <Input
-                id="price"
-                name="price"
+                disabled={checked}
+                name="Gasoline91"
                 placeholder="Enter Price (e.g., 00.00)"
-                value={selectedDisplay?.fuel91}
-                onChange={(e) => {
-                  let price = e.target.value;
-
-                  price = price.replace(/[^0-9.]/g, "");
-
-                  if (/^\d{2}$/.test(price)) {
-                    price = price + ".";
-                  }
-                  const hasMultipleDecimals = price.split(".").length > 2;
-                  const isValidFormat = /^\d{0,2}(\.\d{0,2})?$/.test(price);
-                  if (!hasMultipleDecimals && isValidFormat) {
-                    setSelectedDisplay((prevDisplay: any) => ({
-                      ...prevDisplay,
-                      fuel91: price,
-                    }));
-                  }
-                }}
+                value={values?.Gasoline91}
+                onChange={handelOnChange}
               />
-              <Label htmlFor="price">fuel95:</Label>
+              <Label htmlFor="price">Gasoline 95:</Label>
               <Input
-                id="price"
-                name="price"
+                disabled={checked}
+                name="Gasoline95"
                 placeholder="Enter Price (e.g., 00.00)"
-                value={selectedDisplay?.fuel95}
-                onChange={(e) => {
-                  let price = e.target.value;
-
-                  price = price.replace(/[^0-9.]/g, "");
-
-                  if (/^\d{2}$/.test(price)) {
-                    price = price + ".";
-                  }
-                  const hasMultipleDecimals = price.split(".").length > 2;
-                  const isValidFormat = /^\d{0,2}(\.\d{0,2})?$/.test(price);
-                  if (!hasMultipleDecimals && isValidFormat) {
-                    setSelectedDisplay((prevDisplay: any) => ({
-                      ...prevDisplay,
-                      fuel95: price,
-                    }));
-                  }
-                }}
+                value={values?.Gasoline95}
+                onChange={handelOnChange}
               />
-              <Label htmlFor="price">fuelDI:</Label>
+              <Label htmlFor="price">Diesel:</Label>
               <Input
-                id="price"
-                name="price"
+                disabled={checked}
+                name="Diesel"
                 placeholder="Enter Price (e.g., 00.00)"
-                value={selectedDisplay?.fuelDI}
-                onChange={(e) => {
-                  let price = e.target.value;
-
-                  price = price.replace(/[^0-9.]/g, "");
-
-                  if (/^\d{2}$/.test(price)) {
-                    price = price + ".";
-                  }
-                  const hasMultipleDecimals = price.split(".").length > 2;
-                  const isValidFormat = /^\d{0,2}(\.\d{0,2})?$/.test(price);
-                  if (!hasMultipleDecimals && isValidFormat) {
-                    setSelectedDisplay((prevDisplay: any) => ({
-                      ...prevDisplay,
-                      fuelDI: price,
-                    }));
-                  }
-                }}
+                value={values?.Diesel}
+                onChange={handelOnChange}
               />
-              {errors.fuelDI && <p className="text-red-500">{errors.fuelDI}</p>}
-
-              <Button onClick={handelSubmit} type="submit">
-                Add
-              </Button>
+              {errors.Diesel && <p className="text-red-500">{errors.Diesel}</p>}
+              <div className="flex mt-5 justify-around">
+                <Button onClick={handelSubmit} type="submit">
+                  Add
+                </Button>
+                <div className="flex items-center gap-3">
+                  <Switch id="sync" onClick={handelSwitch} checked={checked} />
+                  <Label htmlFor="sync">Auto Price</Label>
+                </div>
+              </div>
             </DialogDescription>
           </DialogHeader>
         </DialogContent>

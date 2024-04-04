@@ -8,18 +8,22 @@ import {
 } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ModeToggle } from "./ModeToggle";
 import { Button } from "./ui/button";
 
-type MenuItem = "dashboard" | "displays";
+type MenuItem = "/dashboard" | "/dashboard/displays";
 
 export default function Side() {
   const { user } = useUser();
   const { signOut } = useClerk();
   const router = useRouter();
 
-  const [activeItem, setActiveItem] = useState<MenuItem | null>(null);
+  const [activeItem, setActiveItem] = useState<MenuItem | null>("/dashboard");
+  useEffect(() => {
+    const queryParameters = window.location.pathname;
+    return setActiveItem(queryParameters as MenuItem);
+  }, []);
 
   const handleItemClick = (item: MenuItem) => {
     setActiveItem(item);
@@ -48,9 +52,9 @@ export default function Side() {
             <Link href={"/dashboard"}>
               <li
                 className={`hover:bg-[#F2F1EF] transition-all flex justify-start items-center text-lg font-bold gap-2 p-2 rounded-md ${
-                  activeItem === "dashboard" ? "bg-[#F2F1EF]" : ""
+                  activeItem === "/dashboard" ? "bg-[#F2F1EF]" : ""
                 }`}
-                onClick={() => handleItemClick("dashboard")}
+                onClick={() => handleItemClick("/dashboard")}
               >
                 <HomeIcon className="w-5 h-5" /> Dashboard
               </li>
@@ -58,9 +62,9 @@ export default function Side() {
             <Link href={"/dashboard/displays"}>
               <li
                 className={`hover:bg-[#F2F1EF] transition-all flex justify-start items-center text-lg font-bold gap-2 p-2 rounded-md ${
-                  activeItem === "displays" ? "bg-[#F2F1EF]" : ""
+                  activeItem === "/dashboard/displays" ? "bg-[#F2F1EF]" : ""
                 }`}
-                onClick={() => handleItemClick("displays")}
+                onClick={() => handleItemClick("/dashboard/displays")}
               >
                 <AdjustmentsHorizontalIcon className="w-5 h-5" /> Displays
               </li>

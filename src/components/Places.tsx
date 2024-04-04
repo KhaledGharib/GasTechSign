@@ -19,10 +19,10 @@ import usePlacesAutocomplete, {
 } from "use-places-autocomplete";
 
 interface PlacesAutocompleteProps {
-  lat: number;
-  lng: number;
+  lat: any;
+  lng: any;
   location: string;
-  onLatLngChange: (lat: number, lng: number, location: string) => void;
+  onLatLngChange: (lat: any, lng: any, location: string) => void;
 }
 
 const PlacesAutocomplete = ({

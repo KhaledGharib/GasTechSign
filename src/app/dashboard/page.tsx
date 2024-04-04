@@ -8,9 +8,11 @@ import Recent from "@/components/Recent";
 import { Button } from "@/components/ui/button";
 import { useStateContext } from "@/context/useContext";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/solid";
+import { useEffect } from "react";
 
 export default function Dashboard() {
   const { displays } = useStateContext();
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-7 pb-10">

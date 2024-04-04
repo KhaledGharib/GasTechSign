@@ -46,7 +46,7 @@ async function handler(request: Request) {
   }
   if (eventType === "session.created") {
     const { user_id } = evt.data;
-    const attributes = 0;
+    const attributes = "session";
     console.log(user_id);
 
     await prisma.user.upsert({

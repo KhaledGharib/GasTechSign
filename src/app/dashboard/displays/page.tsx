@@ -1,5 +1,6 @@
 "use client";
 import AddDisplay from "@/components/AddDisplay";
+import PlacesAutocomplete from "@/components/Places";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -26,14 +28,50 @@ import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
 
 export default function Displays() {
-  const { displays, setDisplays } = useStateContext();
+  const { displays, setDisplays, retailFuels } = useStateContext();
   const [selectedDisplay, setSelectedDisplay] = useState<DisplayProps | null>(
     null
   );
 
   const { user } = useUser();
   const [open, setOpen] = useState(false);
+  const [errors, setErrors] = useState({
+    displayName: "",
+    StationID: "",
+    Gasoline91: "",
+    Gasoline9: "",
+    fuelDI: "",
+  });
 
+  const [values, setValues] = useState<DisplayProps | null>(null);
+  const [checked, setChecked] = useState(false);
+
+  const handelOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (name === "Gasoline91" || name === "Gasoline95" || name === "Diesel") {
+      let price = value;
+      price = price.replace(/[^0-9.]/g, "");
+      if (/^\d{2}$/.test(price)) {
+        price = price + ".";
+      }
+      const hasMultipleDecimals = price.split(".").length > 2;
+      const isValidFormat = /^\d{0,2}(\.\d{0,2})?$/.test(price);
+      if (!hasMultipleDecimals && isValidFormat) {
+        setValues((prevFormData) => ({
+          ...prevFormData,
+          [name]: price,
+        }));
+      }
+    } else {
+      setValues((prevFormData) => ({
+        ...prevFormData,
+        [name]: value,
+      }));
+    }
+  };
+  const handleLatLngChange = (lat: number, lng: number, location: string) => {
+    setValues({ lat, lng, location });
+  };
   const handelDelete = async (displayID: string) => {
     if (user && user.id && displays) {
       const userId = user.id;
@@ -58,7 +96,7 @@ export default function Displays() {
   };
 
   const handleUpdate = async () => {
-    if (user && user.id && selectedDisplay) {
+    if (user && user.id && values) {
       try {
         const ownerId = user.id;
         const response = await fetch("/api/update", {
@@ -68,13 +106,13 @@ export default function Displays() {
           },
           body: JSON.stringify({
             ownerId,
-            displayID: selectedDisplay.id,
-            displayName: selectedDisplay.displayName,
-            location: selectedDisplay.location,
-            fuel91: selectedDisplay.fuel91,
-            fuel95: selectedDisplay.fuel95,
-            fuelDI: selectedDisplay.fuelDI,
-            displays: selectedDisplay.displayId,
+            displayID: values?.id,
+            displayName: values?.displayName,
+            location: values?.location,
+            Gasoline91: values?.Gasoline91,
+            Gasoline95: values?.Gasoline95,
+            Diesel: values?.Diesel,
+            displays: values?.displayId,
           }),
         });
 
@@ -84,7 +122,7 @@ export default function Displays() {
             display.id === updatedDisplay.id ? updatedDisplay : display
           );
           setDisplays(updatedDisplays ?? []);
-          handelSend(selectedDisplay.id);
+          handelSend(values.id!);
           setOpen(false);
         } else {
           const errorData = await response.json();
@@ -121,9 +159,9 @@ export default function Displays() {
           },
           body: JSON.stringify({
             topic: espData.displayId,
-            fuel91: espData.fuel91,
-            fuel95: espData.fuel95,
-            fuelDI: espData.fuelDI,
+            fuel91: espData.Gasoline91,
+            fuel95: espData.Gasoline95,
+            fuelDI: espData.Diesel,
           }),
         });
         const res = await espResponse.json();
@@ -135,6 +173,30 @@ export default function Displays() {
       }
     } catch (error) {
       console.error("Error:", error);
+    }
+  };
+  const syncFunction = () => {
+    setChecked(true);
+    if (retailFuels) {
+      retailFuels.map((e) => {
+        setValues((prevFormData) => ({
+          ...prevFormData,
+          [e.fuelName.replace(" ", "")]: e.price,
+        }));
+      });
+    }
+  };
+  const handelSwitch = () => {
+    if (checked) {
+      setChecked(false);
+      setValues((prevFormData) => ({
+        ...prevFormData,
+        Gasoline91: values?.Gasoline91,
+        Gasoline95: values?.Gasoline95,
+        Diesel: values?.Diesel,
+      }));
+    } else {
+      syncFunction();
     }
   };
 
@@ -158,14 +220,14 @@ export default function Displays() {
                   <div className="flex items-center justify-center gap-3">
                     <Button
                       onClick={() => {
-                        handelDelete(data.id);
+                        handelDelete(data.id!);
                       }}
                     >
                       Delete
                     </Button>
                     <Button
                       onClick={() => {
-                        handelSend(data.id);
+                        handelSend(data.id!);
                       }}
                     >
                       Send
@@ -174,7 +236,7 @@ export default function Displays() {
                       <DialogTrigger
                         asChild
                         onClick={() => {
-                          setSelectedDisplay(data);
+                          setValues(data);
                         }}
                       >
                         <Button>Edit</Button>
@@ -185,90 +247,82 @@ export default function Displays() {
                           <DialogDescription>
                             <Label htmlFor="name">Display Name:</Label>
                             <Input
-                              id="name"
-                              name="name"
+                              id="displayName"
+                              name="displayName"
                               placeholder="Enter Display Name"
-                              value={selectedDisplay?.displayName}
-                              onChange={(e) =>
-                                setSelectedDisplay((prevDisplay: any) => ({
-                                  ...prevDisplay,
-                                  displayName: e.target.value,
-                                }))
-                              }
+                              value={values?.displayName}
+                              onChange={handelOnChange}
                             />
+                            {errors.displayName && (
+                              <p className="text-red-500">
+                                {errors.displayName}
+                              </p>
+                            )}
                             <Label htmlFor="location">Location:</Label>
+                            <div className="border rounded-md">
+                              <PlacesAutocomplete
+                                location={values?.location!}
+                                lat={values?.lat!}
+                                lng={values?.lng!}
+                                onLatLngChange={handleLatLngChange}
+                              />
+                            </div>
+                            <Label htmlFor="displayId">displayId</Label>
                             <Input
-                              id="location"
-                              name="location"
-                              placeholder="Enter Location"
-                              value={selectedDisplay?.location}
-                              onChange={(e) =>
-                                setSelectedDisplay((prevDisplay: any) => ({
-                                  ...prevDisplay,
-                                  location: e.target.value,
-                                }))
-                              }
+                              id="displayId"
+                              name="displayId"
+                              placeholder="displayId"
+                              value={values?.displayId}
+                              onChange={handelOnChange}
                             />
-                            <Label htmlFor="IP Address">StationID</Label>
+                            {errors.StationID && (
+                              <p className="text-red-500">{errors.StationID}</p>
+                            )}
+                            <Label htmlFor="price">Gasoline 91:</Label>
                             <Input
-                              id="IP Address"
-                              name="IP Address"
-                              placeholder="IP Address"
-                              value={selectedDisplay?.displayId}
-                              onChange={(e) =>
-                                setSelectedDisplay((prevDisplay: any) => ({
-                                  ...prevDisplay,
-                                  displayId: e.target.value,
-                                }))
-                              }
+                              disabled={checked}
+                              name="Gasoline91"
+                              placeholder="Enter Price (e.g., 00.00)"
+                              value={values?.Gasoline91}
+                              onChange={handelOnChange}
                             />
-                            <Label htmlFor="price">91:</Label>
+                            <Label htmlFor="price">Gasoline 95:</Label>
                             <Input
-                              id="price"
-                              name="price"
-                              placeholder="Enter Price"
-                              value={selectedDisplay?.fuel91}
-                              onChange={(e) =>
-                                setSelectedDisplay((prevDisplay: any) => ({
-                                  ...prevDisplay,
-                                  fuel91: e.target.value,
-                                }))
-                              }
+                              disabled={checked}
+                              name="Gasoline95"
+                              placeholder="Enter Price (e.g., 00.00)"
+                              value={values?.Gasoline95}
+                              onChange={handelOnChange}
                             />
-                            <Label htmlFor="price">95:</Label>
+                            <Label htmlFor="price">Diesel:</Label>
                             <Input
-                              id="price"
-                              name="price"
-                              placeholder="Enter Price"
-                              value={selectedDisplay?.fuel95}
-                              onChange={(e) =>
-                                setSelectedDisplay((prevDisplay: any) => ({
-                                  ...prevDisplay,
-                                  fuel95: e.target.value,
-                                }))
-                              }
+                              disabled={checked}
+                              name="Diesel"
+                              placeholder="Enter Price (e.g., 00.00)"
+                              value={values?.Diesel}
+                              onChange={handelOnChange}
                             />
-                            <Label htmlFor="price">DI:</Label>
-                            <Input
-                              id="price"
-                              name="price"
-                              placeholder="Enter Price"
-                              value={selectedDisplay?.fuelDI}
-                              onChange={(e) =>
-                                setSelectedDisplay((prevDisplay: any) => ({
-                                  ...prevDisplay,
-                                  fuelDI: e.target.value,
-                                }))
-                              }
-                            />
-                            <Button
-                              onClick={() => {
-                                handleUpdate();
-                              }}
-                              type="submit"
-                            >
-                              Save
-                            </Button>
+                            {errors.fuelDI && (
+                              <p className="text-red-500">{errors.fuelDI}</p>
+                            )}
+                            <div className="flex mt-5 justify-around">
+                              <Button
+                                onClick={() => {
+                                  handleUpdate();
+                                }}
+                                type="submit"
+                              >
+                                Save
+                              </Button>
+                              <div className="flex items-center gap-3">
+                                <Switch
+                                  id="sync"
+                                  onClick={handelSwitch}
+                                  checked={checked}
+                                />
+                                <Label htmlFor="sync">Auto Price</Label>
+                              </div>
+                            </div>
                           </DialogDescription>
                         </DialogHeader>
                       </DialogContent>
