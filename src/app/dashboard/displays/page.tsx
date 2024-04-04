@@ -108,7 +108,7 @@ export default function Displays() {
             displayName: values?.displayName,
             location: values?.location,
             Gasoline91: values?.Gasoline91,
-            fuGasoline95: values?.Gasoline95,
+            Gasoline95: values?.Gasoline95,
             Diesel: values?.Diesel,
             displays: values?.displayId,
           }),
