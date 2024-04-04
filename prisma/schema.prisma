@@ -25,9 +25,9 @@ model Display {
   id           Int   @id @default(autoincrement())
   userId       String
   user         User  @relation(fields: [userId], references: [externalId])
-  fuel91       Decimal
-  fuel95       Decimal
-  fuelDI       Decimal   
+  Gasoline91   Decimal
+  Gasoline95   Decimal
+  Diesel       Decimal   
   displayName  String   
   displayId    String     @unique  
   isActive     Boolean  @default(false)

@@ -37,8 +37,8 @@ export default function Displays() {
   const [errors, setErrors] = useState({
     displayName: "",
     StationID: "",
-    fuel91: "",
-    fuel95: "",
+    Gasoline91: "",
+    Gasoline9: "",
     fuelDI: "",
   });
 
@@ -46,7 +46,7 @@ export default function Displays() {
 
   const handelOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === "fuel91" || name === "fuel95" || name === "fuelDI") {
+    if (name === "Gasoline91" || name === "Gasoline95" || name === "Diesel") {
       let price = value;
       price = price.replace(/[^0-9.]/g, "");
       if (/^\d{2}$/.test(price)) {
@@ -107,9 +107,9 @@ export default function Displays() {
             displayID: values?.id,
             displayName: values?.displayName,
             location: values?.location,
-            fuel91: values?.fuel91,
-            fuel95: values?.fuel95,
-            fuelDI: values?.fuelDI,
+            Gasoline91: values?.Gasoline91,
+            fuGasoline95: values?.Gasoline95,
+            Diesel: values?.Diesel,
             displays: values?.displayId,
           }),
         });
@@ -157,9 +157,9 @@ export default function Displays() {
           },
           body: JSON.stringify({
             topic: espData.displayId,
-            fuel91: espData.fuel91,
-            fuel95: espData.fuel95,
-            fuelDI: espData.fuelDI,
+            fuel91: espData.Gasoline91,
+            fuel95: espData.Gasoline95,
+            fuelDI: espData.Diesel,
           }),
         });
         const res = await espResponse.json();
@@ -252,25 +252,25 @@ export default function Displays() {
                             {errors.StationID && (
                               <p className="text-red-500">{errors.StationID}</p>
                             )}
-                            <Label htmlFor="price">fuel91:</Label>
+                            <Label htmlFor="price">Gasoline91:</Label>
                             <Input
-                              name="fuel91"
+                              name="Gasoline91"
                               placeholder="Enter Price (e.g., 00.00)"
-                              value={values?.fuel91}
+                              value={values?.Gasoline91}
                               onChange={handelOnChange}
                             />
-                            <Label htmlFor="price">fuel95:</Label>
+                            <Label htmlFor="price">Gasoline95:</Label>
                             <Input
-                              name="fuel95"
+                              name="Gasoline95"
                               placeholder="Enter Price (e.g., 00.00)"
-                              value={values?.fuel95}
+                              value={values?.Gasoline95}
                               onChange={handelOnChange}
                             />
-                            <Label htmlFor="price">fuelDI:</Label>
+                            <Label htmlFor="price">Diesel:</Label>
                             <Input
-                              name="fuelDI"
+                              name="Diesel"
                               placeholder="Enter Price (e.g., 00.00)"
-                              value={values?.fuelDI}
+                              value={values?.Diesel}
                               onChange={handelOnChange}
                             />
                             {errors.fuelDI && (
