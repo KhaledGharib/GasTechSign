@@ -35,8 +35,10 @@ interface MapProps {
 }
 
 const MapComponent: React.FC<MapProps> = ({ pins }) => {
+  const [libraries] = useState(["places"]);
+
   const { isLoaded } = useJsApiLoader({
-    libraries: ["places"],
+    libraries,
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
   });
 
