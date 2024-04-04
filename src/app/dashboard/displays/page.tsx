@@ -1,5 +1,6 @@
 "use client";
 import AddDisplay from "@/components/AddDisplay";
+import PlacesAutocomplete from "@/components/Places";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -33,7 +34,42 @@ export default function Displays() {
 
   const { user } = useUser();
   const [open, setOpen] = useState(false);
+  const [errors, setErrors] = useState({
+    displayName: "",
+    StationID: "",
+    fuel91: "",
+    fuel95: "",
+    fuelDI: "",
+  });
 
+  const [values, setValues] = useState<DisplayProps | null>(null);
+
+  const handelOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (name === "fuel91" || name === "fuel95" || name === "fuelDI") {
+      let price = value;
+      price = price.replace(/[^0-9.]/g, "");
+      if (/^\d{2}$/.test(price)) {
+        price = price + ".";
+      }
+      const hasMultipleDecimals = price.split(".").length > 2;
+      const isValidFormat = /^\d{0,2}(\.\d{0,2})?$/.test(price);
+      if (!hasMultipleDecimals && isValidFormat) {
+        setValues((prevFormData) => ({
+          ...prevFormData,
+          [name]: price,
+        }));
+      }
+    } else {
+      setValues((prevFormData) => ({
+        ...prevFormData,
+        [name]: value,
+      }));
+    }
+  };
+  const handleLatLngChange = (lat: number, lng: number, location: string) => {
+    setValues({ lat, lng, location });
+  };
   const handelDelete = async (displayID: string) => {
     if (user && user.id && displays) {
       const userId = user.id;
@@ -58,7 +94,7 @@ export default function Displays() {
   };
 
   const handleUpdate = async () => {
-    if (user && user.id && selectedDisplay) {
+    if (user && user.id && values) {
       try {
         const ownerId = user.id;
         const response = await fetch("/api/update", {
@@ -68,13 +104,13 @@ export default function Displays() {
           },
           body: JSON.stringify({
             ownerId,
-            displayID: selectedDisplay.id,
-            displayName: selectedDisplay.displayName,
-            location: selectedDisplay.location,
-            fuel91: selectedDisplay.fuel91,
-            fuel95: selectedDisplay.fuel95,
-            fuelDI: selectedDisplay.fuelDI,
-            displays: selectedDisplay.displayId,
+            displayID: values?.id,
+            displayName: values?.displayName,
+            location: values?.location,
+            fuel91: values?.fuel91,
+            fuel95: values?.fuel95,
+            fuelDI: values?.fuelDI,
+            displays: values?.displayId,
           }),
         });
 
@@ -84,7 +120,7 @@ export default function Displays() {
             display.id === updatedDisplay.id ? updatedDisplay : display
           );
           setDisplays(updatedDisplays ?? []);
-          handelSend(selectedDisplay.id);
+          handelSend(values.id!);
           setOpen(false);
         } else {
           const errorData = await response.json();
@@ -158,14 +194,14 @@ export default function Displays() {
                   <div className="flex items-center justify-center gap-3">
                     <Button
                       onClick={() => {
-                        handelDelete(data.id);
+                        handelDelete(data.id!);
                       }}
                     >
                       Delete
                     </Button>
                     <Button
                       onClick={() => {
-                        handelSend(data.id);
+                        handelSend(data.id!);
                       }}
                     >
                       Send
@@ -174,7 +210,7 @@ export default function Displays() {
                       <DialogTrigger
                         asChild
                         onClick={() => {
-                          setSelectedDisplay(data);
+                          setValues(data);
                         }}
                       >
                         <Button>Edit</Button>
@@ -185,82 +221,62 @@ export default function Displays() {
                           <DialogDescription>
                             <Label htmlFor="name">Display Name:</Label>
                             <Input
-                              id="name"
-                              name="name"
+                              id="displayName"
+                              name="displayName"
                               placeholder="Enter Display Name"
-                              value={selectedDisplay?.displayName}
-                              onChange={(e) =>
-                                setSelectedDisplay((prevDisplay: any) => ({
-                                  ...prevDisplay,
-                                  displayName: e.target.value,
-                                }))
-                              }
+                              value={values?.displayName}
+                              onChange={handelOnChange}
                             />
+                            {errors.displayName && (
+                              <p className="text-red-500">
+                                {errors.displayName}
+                              </p>
+                            )}
                             <Label htmlFor="location">Location:</Label>
+                            <div className="border rounded-md">
+                              <PlacesAutocomplete
+                                location={values?.location!}
+                                lat={values?.lat!}
+                                lng={values?.lng!}
+                                onLatLngChange={handleLatLngChange}
+                              />
+                            </div>
+                            <Label htmlFor="displayId">displayId</Label>
                             <Input
-                              id="location"
-                              name="location"
-                              placeholder="Enter Location"
-                              value={selectedDisplay?.location}
-                              onChange={(e) =>
-                                setSelectedDisplay((prevDisplay: any) => ({
-                                  ...prevDisplay,
-                                  location: e.target.value,
-                                }))
-                              }
+                              id="displayId"
+                              name="displayId"
+                              placeholder="displayId"
+                              value={values?.displayId}
+                              onChange={handelOnChange}
                             />
-                            <Label htmlFor="IP Address">StationID</Label>
+                            {errors.StationID && (
+                              <p className="text-red-500">{errors.StationID}</p>
+                            )}
+                            <Label htmlFor="price">fuel91:</Label>
                             <Input
-                              id="IP Address"
-                              name="IP Address"
-                              placeholder="IP Address"
-                              value={selectedDisplay?.displayId}
-                              onChange={(e) =>
-                                setSelectedDisplay((prevDisplay: any) => ({
-                                  ...prevDisplay,
-                                  displayId: e.target.value,
-                                }))
-                              }
+                              name="fuel91"
+                              placeholder="Enter Price (e.g., 00.00)"
+                              value={values?.fuel91}
+                              onChange={handelOnChange}
                             />
-                            <Label htmlFor="price">91:</Label>
+                            <Label htmlFor="price">fuel95:</Label>
                             <Input
-                              id="price"
-                              name="price"
-                              placeholder="Enter Price"
-                              value={selectedDisplay?.fuel91}
-                              onChange={(e) =>
-                                setSelectedDisplay((prevDisplay: any) => ({
-                                  ...prevDisplay,
-                                  fuel91: e.target.value,
-                                }))
-                              }
+                              name="fuel95"
+                              placeholder="Enter Price (e.g., 00.00)"
+                              value={values?.fuel95}
+                              onChange={handelOnChange}
                             />
-                            <Label htmlFor="price">95:</Label>
+                            <Label htmlFor="price">fuelDI:</Label>
                             <Input
-                              id="price"
-                              name="price"
-                              placeholder="Enter Price"
-                              value={selectedDisplay?.fuel95}
-                              onChange={(e) =>
-                                setSelectedDisplay((prevDisplay: any) => ({
-                                  ...prevDisplay,
-                                  fuel95: e.target.value,
-                                }))
-                              }
+                              name="fuelDI"
+                              placeholder="Enter Price (e.g., 00.00)"
+                              value={values?.fuelDI}
+                              onChange={handelOnChange}
                             />
-                            <Label htmlFor="price">DI:</Label>
-                            <Input
-                              id="price"
-                              name="price"
-                              placeholder="Enter Price"
-                              value={selectedDisplay?.fuelDI}
-                              onChange={(e) =>
-                                setSelectedDisplay((prevDisplay: any) => ({
-                                  ...prevDisplay,
-                                  fuelDI: e.target.value,
-                                }))
-                              }
-                            />
+                            {errors.fuelDI && (
+                              <p className="text-red-500">{errors.fuelDI}</p>
+                            )}
+
                             <Button
                               onClick={() => {
                                 handleUpdate();

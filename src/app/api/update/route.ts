@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { NextRequest } from "next/server";
 
+// Update Information
 const prisma = new PrismaClient();
 export async function PUT(req: NextRequest) {
   try {
