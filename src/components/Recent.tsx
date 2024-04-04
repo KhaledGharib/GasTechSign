@@ -51,17 +51,17 @@ export default function Recent() {
           ) : (
             <Carousel>
               <CarouselContent>
-                <CarouselItem className="md:basis-1/2 lg:basis-1/4">
+                <CarouselItem className="basis-1/4">
                   <Skeleton className="bg-gray-400 h-40 w-80 " />
                 </CarouselItem>
-                <CarouselItem className="md:basis-1/2 lg:basis-1/4">
+                <CarouselItem className="basis-1/4">
                   <Skeleton className="bg-gray-400 h-40 w-80 " />
                 </CarouselItem>
-                <CarouselItem className="md:basis-1/2 lg:basis-1/4">
+                <CarouselItem className="basis-1/4">
                   <Skeleton className="bg-gray-400 h-40 w-80 " />
                 </CarouselItem>
 
-                <CarouselItem className="md:basis-1/2 lg:basis-1/4 ">
+                <CarouselItem className="basis-1/4 ">
                   <Skeleton className="bg-gray-400 h-40 w-80 " />
                 </CarouselItem>
               </CarouselContent>
