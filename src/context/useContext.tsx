@@ -12,15 +12,15 @@ import {
 export interface DisplayProps {
   id?: string;
   displayId?: string;
-  fuel91?: string;
-  fuel95?: string;
-  fuelDI?: string;
+  Gasoline91?: string;
+  Gasoline95?: string;
+  Diesel?: string;
   userId?: string;
   isActive?: boolean;
   location?: string;
   displayName?: string;
-  lat?: number;
-  lng?: number;
+  lat?: any;
+  lng?: any;
   createdAt?: any;
 }
 
@@ -101,7 +101,6 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
         });
 
         const data = await res.json();
-        console.log(data);
         setRetailFuels(data);
       } catch (error) {
         console.error("Error fetching data:", error);

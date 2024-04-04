@@ -7,32 +7,46 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DisplayProps, useStateContext } from "@/context/useContext";
 import { useUser } from "@clerk/nextjs";
-import { ReactEventHandler, useState } from "react";
+import { useState } from "react";
 import PlacesAutocomplete from "./Places";
 
 export default function AddDisplay() {
   const { user } = useUser();
-  const { displays, setDisplays } = useStateContext();
+  const { displays, setDisplays, retailFuels } = useStateContext();
 
   // State variables and validation functions for form fields
   const [errors, setErrors] = useState({
     displayName: "",
     StationID: "",
-    fuel91: "",
-    fuel95: "",
-    fuelDI: "",
+    Gasoline91: "",
+    Gasoline95: "",
+    Diesel: "",
   });
   const [open, setOpen] = useState(false);
+  const [checked, setChecked] = useState(true);
   const [values, setValues] = useState<DisplayProps | null>(null);
+
+  const syncFunction = () => {
+    setChecked(true);
+    if (retailFuels) {
+      retailFuels.map((e) => {
+        setValues((prevFormData) => ({
+          ...prevFormData,
+          [e.fuelName.replace(" ", "")]: e.price,
+        }));
+      });
+    }
+  };
 
   const handelOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === "fuel91" || name === "fuel95" || name === "fuelDI") {
+    if (name === "Gasoline91" || name === "Gasoline95" || name === "Diesel") {
       let price = value;
       price = price.replace(/[^0-9.]/g, "");
       if (/^\d{2}$/.test(price)) {
@@ -75,23 +89,23 @@ export default function AddDisplay() {
       newErrors.StationID = "";
     }
 
-    if (!values?.fuel91) {
-      newErrors.fuel91 = "Price is required.";
+    if (!values?.Gasoline91) {
+      newErrors.Gasoline91 = "Price is required.";
       valid = false;
     } else {
-      newErrors.fuel91 = "";
+      newErrors.Gasoline91 = "";
     }
-    if (!values?.fuel95) {
-      newErrors.fuel95 = "Price is required.";
+    if (!values?.Gasoline95) {
+      newErrors.Gasoline95 = "Price is required.";
       valid = false;
     } else {
-      newErrors.fuel95 = "";
+      newErrors.Gasoline95 = "";
     }
-    if (!values?.fuelDI) {
-      newErrors.fuelDI = "Price is required.";
+    if (!values?.Diesel) {
+      newErrors.Diesel = "Price is required.";
       valid = false;
     } else {
-      newErrors.fuelDI = "";
+      newErrors.Diesel = "";
     }
 
     setErrors(newErrors);
@@ -124,9 +138,9 @@ export default function AddDisplay() {
           },
           body: JSON.stringify({
             topic: espData.displayId,
-            fuel91: espData.fuel91,
-            fuel95: espData.fuel95,
-            fuelDI: espData.fuelDI,
+            fuel91: espData.Gasoline91,
+            fuel95: espData.Gasoline95,
+            fuelDI: espData.Diesel,
           }),
         });
         const res = await espResponse.json();
@@ -152,9 +166,9 @@ export default function AddDisplay() {
           userId,
           displayName: values?.displayName,
           location: values?.location,
-          fuel91: values?.fuel91,
-          fuel95: values?.fuel95,
-          fuelDI: values?.fuelDI,
+          fuel91: values?.Gasoline91,
+          fuel95: values?.Gasoline95,
+          fuelDI: values?.Diesel,
           displayId: values?.displayId,
           isActive: values?.isActive,
           lat: values?.lat,
@@ -173,17 +187,25 @@ export default function AddDisplay() {
       }
     }
   };
+  const handelSwitch = () => {
+    if (checked) {
+      setChecked(false);
+      setValues((prevFormData) => ({
+        ...prevFormData,
+        Gasoline91: "",
+        Gasoline95: "",
+        Diesel: "",
+      }));
+    } else {
+      syncFunction();
+    }
+  };
 
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger
-          asChild
-          onClick={() => {
-            setValues(null);
-          }}
-        >
-          <Button>Add new Display</Button>
+        <DialogTrigger asChild>
+          <Button onClick={syncFunction}>Add new Display</Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
@@ -220,32 +242,40 @@ export default function AddDisplay() {
               {errors.StationID && (
                 <p className="text-red-500">{errors.StationID}</p>
               )}
-              <Label htmlFor="price">fuel91:</Label>
+              <Label htmlFor="price">Gasoline 91:</Label>
               <Input
-                name="fuel91"
+                disabled={checked}
+                name="Gasoline91"
                 placeholder="Enter Price (e.g., 00.00)"
-                value={values?.fuel91}
+                value={values?.Gasoline91}
                 onChange={handelOnChange}
               />
-              <Label htmlFor="price">fuel95:</Label>
+              <Label htmlFor="price">Gasoline 95:</Label>
               <Input
-                name="fuel95"
+                disabled={checked}
+                name="Gasoline95"
                 placeholder="Enter Price (e.g., 00.00)"
-                value={values?.fuel95}
+                value={values?.Gasoline95}
                 onChange={handelOnChange}
               />
-              <Label htmlFor="price">fuelDI:</Label>
+              <Label htmlFor="price">Diesel:</Label>
               <Input
-                name="fuelDI"
+                disabled={checked}
+                name="Diesel"
                 placeholder="Enter Price (e.g., 00.00)"
-                value={values?.fuelDI}
+                value={values?.Diesel}
                 onChange={handelOnChange}
               />
-              {errors.fuelDI && <p className="text-red-500">{errors.fuelDI}</p>}
-
-              <Button onClick={handelSubmit} type="submit">
-                Add
-              </Button>
+              {errors.Diesel && <p className="text-red-500">{errors.Diesel}</p>}
+              <div className="flex mt-5 justify-around">
+                <Button onClick={handelSubmit} type="submit">
+                  Add
+                </Button>
+                <div className="flex items-center gap-3">
+                  <Switch id="sync" onClick={handelSwitch} checked={checked} />
+                  <Label htmlFor="sync">Auto Price</Label>
+                </div>
+              </div>
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
