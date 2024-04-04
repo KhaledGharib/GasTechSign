@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -27,7 +28,7 @@ import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
 
 export default function Displays() {
-  const { displays, setDisplays } = useStateContext();
+  const { displays, setDisplays, retailFuels } = useStateContext();
   const [selectedDisplay, setSelectedDisplay] = useState<DisplayProps | null>(
     null
   );
@@ -43,6 +44,7 @@ export default function Displays() {
   });
 
   const [values, setValues] = useState<DisplayProps | null>(null);
+  const [checked, setChecked] = useState(false);
 
   const handelOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -173,6 +175,30 @@ export default function Displays() {
       console.error("Error:", error);
     }
   };
+  const syncFunction = () => {
+    setChecked(true);
+    if (retailFuels) {
+      retailFuels.map((e) => {
+        setValues((prevFormData) => ({
+          ...prevFormData,
+          [e.fuelName.replace(" ", "")]: e.price,
+        }));
+      });
+    }
+  };
+  const handelSwitch = () => {
+    if (checked) {
+      setChecked(false);
+      setValues((prevFormData) => ({
+        ...prevFormData,
+        Gasoline91: values?.Gasoline91,
+        Gasoline95: values?.Gasoline95,
+        Diesel: values?.Diesel,
+      }));
+    } else {
+      syncFunction();
+    }
+  };
 
   return (
     <div>
@@ -252,15 +278,17 @@ export default function Displays() {
                             {errors.StationID && (
                               <p className="text-red-500">{errors.StationID}</p>
                             )}
-                            <Label htmlFor="price">Gasoline91:</Label>
+                            <Label htmlFor="price">Gasoline 91:</Label>
                             <Input
+                              disabled={checked}
                               name="Gasoline91"
                               placeholder="Enter Price (e.g., 00.00)"
                               value={values?.Gasoline91}
                               onChange={handelOnChange}
                             />
-                            <Label htmlFor="price">Gasoline95:</Label>
+                            <Label htmlFor="price">Gasoline 95:</Label>
                             <Input
+                              disabled={checked}
                               name="Gasoline95"
                               placeholder="Enter Price (e.g., 00.00)"
                               value={values?.Gasoline95}
@@ -268,6 +296,7 @@ export default function Displays() {
                             />
                             <Label htmlFor="price">Diesel:</Label>
                             <Input
+                              disabled={checked}
                               name="Diesel"
                               placeholder="Enter Price (e.g., 00.00)"
                               value={values?.Diesel}
@@ -276,15 +305,24 @@ export default function Displays() {
                             {errors.fuelDI && (
                               <p className="text-red-500">{errors.fuelDI}</p>
                             )}
-
-                            <Button
-                              onClick={() => {
-                                handleUpdate();
-                              }}
-                              type="submit"
-                            >
-                              Save
-                            </Button>
+                            <div className="flex mt-5 justify-around">
+                              <Button
+                                onClick={() => {
+                                  handleUpdate();
+                                }}
+                                type="submit"
+                              >
+                                Save
+                              </Button>
+                              <div className="flex items-center gap-3">
+                                <Switch
+                                  id="sync"
+                                  onClick={handelSwitch}
+                                  checked={checked}
+                                />
+                                <Label htmlFor="sync">Auto Price</Label>
+                              </div>
+                            </div>
                           </DialogDescription>
                         </DialogHeader>
                       </DialogContent>
