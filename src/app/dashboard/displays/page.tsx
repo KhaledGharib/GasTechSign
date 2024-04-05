@@ -1,33 +1,30 @@
 "use client";
-import AddDisplay from "@/components/AddDisplay";
-import PlacesAutocomplete from "@/components/Places";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { DisplayProps, useStateContext } from "@/context/useContext";
+import { DisplayProps, useStateContext } from "@/context/useContext"; // Adjust the import path based on your project structure
 import { useUser } from "@clerk/nextjs";
+import React, { useEffect, useState } from "react";
+import { columns } from "./columns";
+import { DataTable } from "./data-table";
 
-import { useState } from "react";
+// async function getData(userId: string): Promise<DisplayProps[]> {
+//   try {
+//     const res = await fetch("/api/count", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({ userId }),
+//     });
+//     if (!res.ok) {
+//       throw new Error("Failed to fetch data");
+//     }
+//     return res.json();
+//   } catch (error) {
+//     console.error("Error fetching data:", error);
+//     return [];
+//   }
+// }
 
-export default function Displays() {
+export default function DemoPage() {
   const { displays, setDisplays, retailFuels } = useStateContext();
   const [selectedDisplay, setSelectedDisplay] = useState<DisplayProps | null>(
     null
@@ -68,9 +65,6 @@ export default function Displays() {
         [name]: value,
       }));
     }
-  };
-  const handleLatLngChange = (lat: number, lng: number, location: string) => {
-    setValues({ lat, lng, location });
   };
   const handelDelete = async (displayID: string) => {
     if (user && user.id && displays) {
@@ -201,121 +195,8 @@ export default function Displays() {
   };
 
   return (
-    <div>
-      <AddDisplay />
-      {displays ? (
-        <Table className="text-lg m-5 mx-auto  shadow-md rounded-md  bg-[#101323]">
-          <TableCaption>displays</TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-left">Displays</TableHead>
-              <TableHead className="text-center">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {displays.map((data: DisplayProps) => (
-              <TableRow key={data.id}>
-                <TableCell className="text-left">{data.displayName}</TableCell>
-                <TableCell className="font-medium text-center  gap-2">
-                  <div className="flex items-center justify-center gap-3">
-                    <Button
-                      onClick={() => {
-                        handelDelete(data.id!);
-                      }}
-                    >
-                      Delete
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        handelSend(data.id!);
-                      }}
-                    >
-                      Send
-                    </Button>
-                    <Dialog open={open} onOpenChange={setOpen}>
-                      <DialogTrigger
-                        asChild
-                        onClick={() => {
-                          setValues(data);
-                        }}
-                      >
-                        <Button>Edit</Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogDescription>
-                            <Label htmlFor="name">Display Name:</Label>
-                            <Input
-                              id="displayName"
-                              name="displayName"
-                              placeholder="Enter Display Name"
-                              value={values?.displayName}
-                              onChange={handelOnChange}
-                            />
-                            {errors.displayName && (
-                              <p className="text-red-500">
-                                {errors.displayName}
-                              </p>
-                            )}
-
-                            <Label htmlFor="price">Gasoline 91:</Label>
-                            <Input
-                              disabled={checked}
-                              name="Gasoline91"
-                              placeholder="Enter Price (e.g., 00.00)"
-                              value={values?.Gasoline91}
-                              onChange={handelOnChange}
-                            />
-                            <Label htmlFor="price">Gasoline 95:</Label>
-                            <Input
-                              disabled={checked}
-                              name="Gasoline95"
-                              placeholder="Enter Price (e.g., 00.00)"
-                              value={values?.Gasoline95}
-                              onChange={handelOnChange}
-                            />
-                            <Label htmlFor="price">Diesel:</Label>
-                            <Input
-                              disabled={checked}
-                              name="Diesel"
-                              placeholder="Enter Price (e.g., 00.00)"
-                              value={values?.Diesel}
-                              onChange={handelOnChange}
-                            />
-                            {errors.fuelDI && (
-                              <p className="text-red-500">{errors.fuelDI}</p>
-                            )}
-                            <div className="flex mt-5 justify-around">
-                              <Button
-                                onClick={() => {
-                                  handleUpdate();
-                                }}
-                                type="submit"
-                              >
-                                Save
-                              </Button>
-                              <div className="flex items-center gap-3">
-                                <Switch
-                                  id="sync"
-                                  onClick={handelSwitch}
-                                  checked={checked}
-                                />
-                                <Label htmlFor="sync">Auto Price</Label>
-                              </div>
-                            </div>
-                          </DialogDescription>
-                        </DialogHeader>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      ) : (
-        <p>loading</p>
-      )}
+    <div className="container mx-auto py-10">
+      <DataTable columns={columns} data={displays} />
     </div>
   );
 }

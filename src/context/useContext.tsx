@@ -9,6 +9,8 @@ import {
   useState,
 } from "react";
 
+export type DisplayPropsArray = DisplayProps[];
+
 export interface DisplayProps {
   id?: string;
   displayId?: string;
@@ -29,12 +31,14 @@ export interface FuelPricesData {
   price: string;
   fuelName: string;
 }
+
+// In StateContextProps, change the type of 'displays' to DisplayPropsArray directly
 interface StateContextProps {
   displayCount: number | null;
   activeCount: number | null;
   inactiveCount: number | null;
-  displays: DisplayProps[] | null;
-  setDisplays: React.Dispatch<React.SetStateAction<DisplayProps[] | null>>;
+  displays: DisplayPropsArray; // Change the type here
+  setDisplays: React.Dispatch<React.SetStateAction<DisplayPropsArray>>;
   setRetailFuels: React.Dispatch<React.SetStateAction<FuelPricesData[] | null>>;
   retailFuels: FuelPricesData[] | null;
 }
@@ -45,7 +49,7 @@ const StateContext = createContext<StateContextProps>({
   displayCount: null,
   activeCount: null,
   inactiveCount: null,
-  displays: null,
+  displays: [],
   setDisplays: () => {},
 });
 
@@ -56,7 +60,8 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
   const [displayCount, setDisplayCount] = useState<number | null>(null);
   const [activeCount, setActiveCount] = useState<number | null>(null);
   const [inactiveCount, setInactiveCount] = useState<number | null>(null);
-  const [displays, setDisplays] = useState<DisplayProps[] | null>(null);
+  const [displays, setDisplays] = useState<DisplayPropsArray>([]);
+
   const [retailFuels, setRetailFuels] = useState<FuelPricesData[] | null>(null);
   const { getToken } = useAuth();
 

@@ -51,7 +51,7 @@ export default function Side() {
           <ul className="text-black p-4 flex flex-col gap-2">
             <Link href={"/dashboard"}>
               <li
-                className={`hover:bg-[#F2F1EF] transition-all flex justify-start items-center text-lg font-bold gap-2 p-2 rounded-md ${
+                className={`hover:bg-[#F2F1EF  transition-all flex justify-start items-center text-lg font-bold gap-2 p-2 rounded-md ${
                   activeItem === "/dashboard" ? "bg-[#F2F1EF]" : ""
                 }`}
                 onClick={() => handleItemClick("/dashboard")}
