@@ -4,7 +4,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
-import Edit, { Open } from "@/components/Edit";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { DisplayProps, DisplayPropsArray } from "@/context/useContext";
 import { useState } from "react";
+import Edit from "@/components/Edit";
 
 export const arrayD: (string | DisplayProps | undefined)[] = [];
 
@@ -109,10 +109,6 @@ export const columns: ColumnDef<DisplayProps>[] = [
     accessorKey: "Actions",
     id: "actions",
     cell: ({ row }) => {
-      function setOpen(open: boolean): void {
-        console.log(open);
-      }
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -122,7 +118,7 @@ export const columns: ColumnDef<DisplayProps>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <Dialog open={Open} onOpenChange={setOpen}>
+            <Dialog>
               <DropdownMenu>
                 <DropdownMenuItem>
                   <DialogTrigger className="w-full text-start">

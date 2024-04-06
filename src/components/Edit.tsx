@@ -5,13 +5,13 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
-export let Open: boolean;
+
 export default function Edit(display: any) {
   const { data } = display;
   const { retailFuels, displays, setDisplays } = useStateContext();
   const [checked, setChecked] = useState(false);
   const [open, setOpen] = useState(false);
-  Open = open;
+
   const [errors, setErrors] = useState({
     displayName: "",
     StationID: "",
