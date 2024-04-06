@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <div className="flex bg-white min-h-screen overflow-y-hidden ">
+      <div className="flex dark:bg-[#222831] min-h-screen overflow-y-hidden ">
         <Side />
         <div className="bg-[#F2F1EF] dark:bg-slate-950 rounded-l-3xl w-full p-10 shadow-inner  ">
           {children}
