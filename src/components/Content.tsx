@@ -28,7 +28,7 @@ export default function Content() {
           <Image
             draggable="false"
             className=" shadow-lg rounded-lg md:rounded-3xl  lg:rounded-[40px]"
-            src={"/main-image.svg"}
+            src={"/image.png"}
             width={1500}
             height={500}
             alt={"dashboard image"}

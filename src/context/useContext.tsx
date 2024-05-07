@@ -98,7 +98,7 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
     const fetchRetailFuels = async () => {
       try {
         const token = await getToken();
-        const res = await fetch("http://localhost:8000/fetch", {
+        const res = await fetch("http://localhost:8000/fuel-prices", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -107,7 +107,9 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
         });
 
         const data = await res.json();
-        setRetailFuels(data);
+        console.log(data.prices);
+
+        setRetailFuels(data.prices.prices);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
