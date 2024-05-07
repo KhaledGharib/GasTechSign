@@ -13,12 +13,6 @@ AWS.config.update({ region, accessKeyId, secretAccessKey });
 export async function POST(req: NextRequest) {
   const { topic, fuel91, fuel95, fuelDI } = await req.json();
 
-  // if (!topic || !message) {
-  //   return res
-  //     .status(400)
-  //     .json({ error: "Missing topic or message in request body" });
-  // }
-
   // Create AWS IoT Data client
   const iotData = new AWS.IotData({ endpoint: iotEndpoint });
 

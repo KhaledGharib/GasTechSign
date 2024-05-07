@@ -12,15 +12,18 @@ import {
 import { FuelPricesData, useStateContext } from "@/context/useContext";
 
 const AramcoPrice: React.FC = () => {
+  const currentDate = new Date().toDateString();
   const { retailFuels } = useStateContext();
   if (retailFuels) {
     return (
-      <Table className="text-lg m-5 mx-auto shadow-md rounded-md ">
-        {/* <TableCaption>{month}</TableCaption> */}
+      <Table className="text-xl font-medium">
+        <TableCaption>
+          {<p>Aramco Retail Fuel price for {currentDate}</p>}
+        </TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead className="text-center text-white">SR/L</TableHead>
-            <TableHead className="text-center text-white">Type</TableHead>
+            <TableHead className="text-center">SR/L</TableHead>
+            <TableHead className="text-center">Type</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

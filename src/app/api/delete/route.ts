@@ -5,7 +5,8 @@ const prisma = new PrismaClient();
 export async function DELETE(req: NextRequest) {
   try {
     const { userId, displayID } = await req.json();
-
+    console.log(userId);
+    console.log(displayID);
     const response = await prisma.display.delete({
       where: {
         userId,
@@ -18,8 +19,8 @@ export async function DELETE(req: NextRequest) {
 
     return new Response(responseBody);
   } catch (error) {
-    const errorResponse = { data: error };
-    const errorBody = JSON.stringify(errorResponse);
+    // const errorResponse = { data: error };
+    const errorBody = JSON.stringify(error);
 
     return new Response(errorBody, {
       status: 500,
